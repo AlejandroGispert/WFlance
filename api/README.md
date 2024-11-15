@@ -6,11 +6,11 @@ node index.js
 
 # Thoughts behind the code
 
+-Structure: "MVC" (Model-View-Controller) - Layered Architecture.
 -Separation of Concerns: Using separate operations from authentication operations
 -Modularity: With separate controllers, the code becomes more modular and easier to manage.
 -Scalability: This split allows each controller to grow independently, which is helpful as your application scales.
-
--added JWT support, and coookie authentication
+-added JWT coookie authentication for 1hour
 
 # Endpoint log
 
@@ -86,3 +86,18 @@ it deletes the cookie
 POST
 
 https://wflance-production.up.railway.app/api/logout
+
+---
+
+https://wflance-production.up.railway.app/api/pj/ GET AllProjects
+
+https://wflance-production.up.railway.app/api/pj/5, GET ProjectById
+
+https://wflance-production.up.railway.app/api/pj/create" POST createProject
+
+https://wflance-production.up.railway.app/api/pj/5 POST updateProject
+
+https://wflance-production.up.railway.app/api/pj/5 DELETE deleteProject
+
+find and test all api documentation at:
+https://wflance-production.up.railway.app/docs/api-docs

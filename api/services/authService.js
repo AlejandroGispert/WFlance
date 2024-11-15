@@ -4,14 +4,15 @@ import User from "../models/user.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Cookie configuration object for better reusability and consistency
+const JWT_ISSUER = "YAR solutions";
+
 const COOKIE_CONFIG = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict",
+  sameSite: "lax",
   maxAge: 3600000, // 1 hour
-  path: "/", // Explicitly set cookie path
-  domain: process.env.COOKIE_DOMAIN || undefined, // Allow for different domains in different environments
+  path: "/",
+  // domain: process.env.COOKIE_DOMAIN || undefined,
 };
 
 class AuthService {
@@ -22,6 +23,7 @@ class AuthService {
       }
 
       const user = await User.findOne({ where: { email } });
+
       if (!user) {
         return { success: false, message: "User not found" };
       }
@@ -31,16 +33,33 @@ class AuthService {
         return { success: false, message: "Invalid password" };
       }
 
-      const token = this.generateToken(user.id);
+      const token = this.generateToken(user.id, user.role_name);
+
+      let redirectUrl;
+      switch (user.role_name) {
+        case "Admin":
+          redirectUrl = "/api/admin";
+          break;
+        case "Developer":
+          redirectUrl = "/api/dev";
+          break;
+        case "Client":
+          redirectUrl = "/api/client";
+          break;
+        default:
+          redirectUrl = "/";
+      }
+
       return {
         success: true,
         message: "Login successful",
+        role: user.role_name,
         user,
         token,
         cookieConfig: COOKIE_CONFIG,
+        redirectUrl,
       };
     } catch (error) {
-      // console.error("Login error:", error);
       return {
         success: false,
         message: "An error occurred during login",
@@ -49,18 +68,25 @@ class AuthService {
     }
   }
 
-  generateToken(userId) {
+  generateToken(userId, role) {
     return jwt.sign(
       {
-        id: userId,
-        timestamp: Date.now(), // Add timestamp for additional security
+        sub: userId,
+        role: role,
+        iat: Math.floor(Date.now() / 1000),
+        sessionId: this.generateSessionId(userId),
+        iss: JWT_ISSUER,
       },
       JWT_SECRET,
       {
         expiresIn: "1h",
-        algorithm: "HS256", // Explicitly specify the algorithm
+        algorithm: "HS256",
       }
     );
+  }
+
+  generateSessionId(userId) {
+    return `${userId}-${Date.now()}`;
   }
 
   verifyToken(token) {
