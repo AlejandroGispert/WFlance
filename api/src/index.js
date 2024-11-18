@@ -4,7 +4,6 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import http from "http";
-import { Server } from "socket.io";
 
 import nestedRouter from "./routers/nested.js";
 import userRouter from "./routers/userRoutes.js";
@@ -14,18 +13,13 @@ import projectRouter from "./routers/projectRouter.js";
 import roleRouter from "./routers/roleRouter.js";
 import swaggerController from "../controllers/swaggerController.js";
 import chatRoutes from "./routers/chatRouter.js";
-import Message from "../models/message.js";
+import invoiceRouter from "./routers/invoiceRouter.js";
+import setupSockets from "../sockets/index.js";
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: process.env.CLIENT_URL,
-    credentials: true,
-  },
-});
+setupSockets(server);
 
-// Middleware
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
@@ -41,12 +35,12 @@ const apiRouter = express.Router();
 apiRouter.use("/", authRouter);
 apiRouter.use("/", userRouter);
 apiRouter.use("/", roleRouter);
+apiRouter.use("/", invoiceRouter);
 apiRouter.use("/nested", nestedRouter);
-apiRouter.use("/dev", devRouter);
-apiRouter.use("/pj", projectRouter);
-
+apiRouter.use("/developer", devRouter);
+apiRouter.use("/projects", projectRouter);
+apiRouter.use("/chat", chatRoutes);
 app.use("/api", apiRouter);
-app.use("/api/chat", chatRoutes);
 
 app.use("/docs", swaggerController);
 
@@ -54,28 +48,32 @@ app.get("/", (req, res) => {
   res.json({ message: "Hello, this API works" });
 });
 
-io.on("connection", (socket) => {
-  console.log("A user connected to the chat");
+// io.on("connection", (socket) => {
+//   console.log("A user connected to the chat");
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected from chat");
-  });
+//   socket.on("disconnect", () => {
+//     console.log("User disconnected from chat");
+//   });
 
-  socket.on("message", async (msg) => {
-    try {
-      const message = await Message.create({
-        senderId: msg.senderId,
-        receiverId: msg.receiverId,
-        message: msg.text,
-        timestamp: new Date(),
-      });
+//   socket.on("message", async (msg) => {
+//     console.log("Received message:", msg);
+//     if (!msg.senderId || !msg.receiverId) {
+//       console.error("Invalid message data:", msg);
+//       return;
+//     }
+//     try {
+//       const message = await Message.create({
+//         senderId: msg.senderId,
+//         receiverId: msg.receiverId,
+//         message: msg.message,
+//       });
 
-      io.emit("message", message);
-    } catch (error) {
-      console.error("Error saving message:", error);
-    }
-  });
-});
+//       socket.emit("message", message);
+//     } catch (error) {
+//       console.error("Error saving message:", error);
+//     }
+//   });
+// });
 
 const port = process.env.PORT || 3001;
 server.listen(port, () => {

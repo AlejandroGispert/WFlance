@@ -3,6 +3,7 @@ import {
   createUser,
   getUsers,
   getUserById,
+  getUserFromToken,
 } from "../../controllers/userController.js";
 import authenticateToken from "../../middlewares/authenticateToken.js";
 
@@ -18,5 +19,7 @@ userRouter.get("/users/:id", authenticateToken, getUserById);
 //userRouter.get("/users/:id", getUserById);
 
 userRouter.post("/users", createUser);
+
+userRouter.get("/user", authenticateToken, getUserFromToken);
 
 export default userRouter;

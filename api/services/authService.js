@@ -33,10 +33,10 @@ class AuthService {
         return { success: false, message: "Invalid password" };
       }
 
-      const token = this.generateToken(user.id, user.role_name);
+      const token = this.generateToken(user.id, user.roleName);
 
       let redirectUrl;
-      switch (user.role_name) {
+      switch (user.roleName) {
         case "Admin":
           redirectUrl = "/api/admin";
           break;
@@ -53,7 +53,7 @@ class AuthService {
       return {
         success: true,
         message: "Login successful",
-        role: user.role_name,
+        role: user.roleName,
         user,
         token,
         cookieConfig: COOKIE_CONFIG,

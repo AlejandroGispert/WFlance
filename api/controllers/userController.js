@@ -1,8 +1,8 @@
 import userService from "../services/userService.js";
 
 const createUser = async (req, res) => {
-  const { name, email, password, phone, role_name } = req.body;
-  if (!name || !email || !password || !phone || !role_name) {
+  const { name, email, password, phone, roleName } = req.body;
+  if (!name || !email || !password || !phone || !roleName) {
     return res.status(400).json({ message: "All fields are required" });
   }
   try {
@@ -11,7 +11,7 @@ const createUser = async (req, res) => {
       email,
       password,
       phone,
-      role_name
+      roleName
     );
     res.status(201).json({
       message: "User created successfully!",
@@ -56,4 +56,25 @@ const getUserById = async (req, res) => {
       .json({ message: "Error retrieving users", error: err.message });
   }
 };
-export { createUser, getUsers, getUserById };
+
+const getUserFromToken = async (req, res) => {
+  const token = req.cookies.token || req.body.token;
+  if (!token) {
+    console.error("No token provided");
+    return res.status(401).json({ message: "JWT must be provided" });
+  }
+  try {
+    const user = await userService.getUserFromToken(token);
+
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error retrieving user", error: err.message });
+  }
+};
+
+export { createUser, getUsers, getUserById, getUserFromToken };
