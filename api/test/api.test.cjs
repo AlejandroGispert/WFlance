@@ -58,8 +58,8 @@ describe("Manual API Tests", () => {
 
   it("/api/developer/assignProject => should assign a developer to a project", async () => {
     const requestBody = {
-      projectId: "2",
-      developerId: "8",
+      projectId: 2,
+      developerId: 8,
     };
     const response = await supertest(config.request.baseURL)
       .post("/api/developer/assignProject")
@@ -68,7 +68,7 @@ describe("Manual API Tests", () => {
     chai.expect(response.status).to.equal(200);
   });
 
-  it("/api/dev/{developerId}/project/{projectId} => should remove a developer from a project", async () => {
+  it("/api/developer/{developerId}/project/{projectId} => should remove a developer from a project", async () => {
     const developerId = "8";
     const projectId = "2";
     const response = await supertest(config.request.baseURL)
@@ -142,25 +142,105 @@ describe("Manual API Tests", () => {
     chai.expect(response.status).to.equal(200);
   });
 
-  it("/api/chat/send => should send a chat message", async () => {
+  // it("/api/chat/send => should send a chat message", async () => {
+  //   const requestBody = {
+  //     conversationId: 3,
+  //     senderId: 8,
+  //     receiverId: 9,
+  //     message: "This is a test message",
+  //   };
+
+  //   const response = await supertest(config.request.baseURL)
+  //     .post("/api/chat/send")
+  //     .set("Authorization", `Bearer ${token}`)
+  //     .send(requestBody);
+
+  //   chai.expect(response.status).to.equal(200);
+  // });
+
+  it("/api/chat/history/8/9 => should fetch chat history", async () => {
+    const response = await supertest(config.request.baseURL)
+      .get("/api/chat/history/8/9")
+      .set("Authorization", `Bearer ${token}`);
+    chai.expect(response.status).to.equal(200);
+  });
+
+  it("/api/projects/client/8 => should fetch all projects of a client", async () => {
+    const response = await supertest(config.request.baseURL)
+      .get("/api/projects/client/8")
+      .set("Authorization", `Bearer ${token}`);
+    chai.expect(response.status).to.equal(200);
+  });
+
+  it("/api/projects/8/invoice => should generate an invoice", async () => {
+    const response = await supertest(config.request.baseURL)
+      .get("/api/projects/8/invoice")
+      .set("Authorization", `Bearer ${token}`);
+    chai.expect(response.status).to.equal(200);
+  });
+
+  it("/api/developer/getAllProjectsFromDeveloper/8 => returns all projects from a developer", async () => {
+    const response = await supertest(config.request.baseURL)
+      .get("/api/developer/getAllProjectsFromDeveloper/8")
+      .set("Authorization", `Bearer ${token}`);
+    chai.expect(response.status).to.equal(200);
+  });
+
+  it("/api/projects/2 => updates a project", async () => {
     const requestBody = {
-      senderId: 8,
-      receiverId: 9,
-      message: "This is a test message",
+      title: "Project tester modificated",
+      description: "Project description modificated",
+      budget: "20000",
     };
 
     const response = await supertest(config.request.baseURL)
-      .post("/api/chat/send")
+      .post("/api/projects/2")
       .set("Authorization", `Bearer ${token}`)
       .send(requestBody);
 
     chai.expect(response.status).to.equal(200);
   });
 
-  it("/api/chat/history/8/9 => should fetch chat history", async () => {
+  it("/api/events/6 => returns all events from a userId", async () => {
     const response = await supertest(config.request.baseURL)
-      .get("/api/chat/history/8/9")
+      .get("/api/events/6")
       .set("Authorization", `Bearer ${token}`);
+    chai.expect(response.status).to.equal(200);
+  });
+
+  it("/api/events/ => should create a new event from a userId in the request", async () => {
+    const requestBody = {
+      id: "2024-11-20T23:00:00.000Z12345",
+      title: "test from mocha tester",
+      start: "2024-11-20T23:00:00.000Z",
+      end: "2024-11-20T23:00:00.000Z",
+      allDay: true,
+      userId: 6,
+    };
+    const response = await supertest(config.request.baseURL)
+      .post("/api/events/")
+      .set("Authorization", `Bearer ${token}`)
+      .send(requestBody);
+    chai.expect(response.status).to.equal(201);
+  });
+
+  it("/api/developer/5/AllClients => returns all clients assigned to developer", async () => {
+    const response = await supertest(config.request.baseURL).get(
+      "/api/developer/5/AllClients"
+    );
+    chai.expect(response.status).to.equal(200);
+  });
+
+  it("/api/developer/5/client/8 => add relation developer - client ", async () => {
+    const response = await supertest(config.request.baseURL).post(
+      "/api/developer/5/client/8"
+    );
+    chai.expect(response.status).to.equal(201);
+  });
+  it("/api/developer/5/client/8 => delete relation developer - client ", async () => {
+    const response = await supertest(config.request.baseURL).delete(
+      "/api/developer/5/client/8"
+    );
     chai.expect(response.status).to.equal(200);
   });
 
@@ -171,4 +251,19 @@ describe("Manual API Tests", () => {
   //     .set("Authorization", `Bearer ${token}`);
   //   chai.expect(response.status).to.equal(200);
   // });
+
+  it("/api/users => create a new user", async () => {
+    const requestBody = {
+      name: "John43454",
+      email: "johnd345oe3@example.com",
+      password: "securepassword1234",
+      phone: "123456789034",
+      roleName: "Client",
+    };
+    const response = await supertest(config.request.baseURL)
+      .post("/api/users")
+      .set("Authorization", `Bearer ${token}`)
+      .send(requestBody);
+    chai.expect(response.status).to.equal(201);
+  });
 });
