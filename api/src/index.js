@@ -18,6 +18,7 @@ import setupSockets from "../sockets/index.js";
 import eventRouter from "./routers/eventRouter.js";
 import developerClientsRouter from "./routers/developerClientsRouter.js";
 import subscribeEmailRouter from "./routers/suscribeEmailRouter.js";
+import timelineRouter from "./routers/timelineRouter.js";
 
 const app = express();
 
@@ -65,6 +66,7 @@ apiRouter.use("/developer", devRouter);
 apiRouter.use("/developer", developerClientsRouter);
 apiRouter.use("/projects", projectRouter);
 apiRouter.use("/projects", invoiceRouter);
+apiRouter.use("/projects", timelineRouter);
 apiRouter.use("/chat", chatRoutes);
 apiRouter.use("/events", eventRouter);
 
